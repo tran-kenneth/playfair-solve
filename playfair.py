@@ -1,25 +1,4 @@
 
-class Square():
-    def __init__(self, key="ABCDEFGHIKLMNOPQRSTUVWXYZ"):
-
-        self.key = key
-
-    def __str__(self):
-        # TODO
-        # String representaion of key
-        return "ABC"
-
-    def clean_key(self, key):
-        return key.replace(" ", "").upper()
-
-    @property
-    def key(self):
-        return self._key
-
-    @key.setter
-    def key(self, key_str):
-        self._key = key_str
-
 
 class Cell():
 
@@ -33,13 +12,34 @@ class Cell():
         return f'{self.letter} @ [{self.x}, {self.y}]'
 
     def same_row(self, cell_2):
+        """Returns boolean representing if the cell is in the same row as cell_2.
+
+        Args:
+            cell_2 (Cell class): Cell object of cell to compare.
+
+        Returns:
+            bool: True if cell is in the same row as cell_2
+        """
         return self.y == cell_2.y
 
     def same_column(self, cell_2):
+        """Returns boolean representing if the cell is in the same column as cell_2.
+
+        Args:
+            cell_2 (Cell class): Cell object of cell to compare.
+
+        Returns:
+            bool: True if cell is in the same column as cell_2
+        """
         return self.x == cell_2.x
 
     @property
     def x(self):
+        """Gets x coordinate of Cell
+
+        Returns:
+            int: x coordinate of Cell
+        """
         return self._x
 
     @x.setter
@@ -48,6 +48,11 @@ class Cell():
 
     @property
     def y(self):
+        """Gets y coordinate of Cell
+
+        Returns:
+            int: y coordinate of Cell
+        """
         return self._y
 
     @y.setter
@@ -56,6 +61,11 @@ class Cell():
 
     @property
     def letter(self):
+        """Gets letter character of Cell
+
+        Returns:
+            str: letter character of Cell
+        """
         return self._letter
 
     @letter.setter
@@ -63,6 +73,7 @@ class Cell():
         self._letter = new_letter
 
 
-cell1 = Cell(3, 4)
-cell2 = Cell(2, 4)
-print(cell1.same_row(cell2))
+if __name__ == "__main__":
+    cell1 = Cell(3, 4)
+    cell2 = Cell(2, 4)
+    print(cell1.same_row(cell2))
