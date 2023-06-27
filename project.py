@@ -8,15 +8,17 @@ def main():
     # Processes user menu option
     user_selection = ""
     while (user_selection != 4):
-        # Display main menu, wait for valid user input
+        # Displays main menu and waits for valid user input
         display_main_menu()
         user_selection = ask_user_menu()
 
         if 1 <= user_selection <= 3:
             # Sets key if one does not exist or selection is to set key
             if len(key) == 0 or user_selection == 1:
-                key = menu_select_key()
+                user_key_to_process = ask_user_key()
+                key = process_key(user_key_to_process)
 
+            # Process to encode or decode based on user selection
             if user_selection == 2:
                 menu_select_encode(key)
             elif user_selection == 3:
@@ -43,31 +45,29 @@ def display_main_menu():
 
 
 def ask_user_menu():
-    """_summary_
+    """Asks user for to select a valid menu option in the form of a number.
 
     Returns:
-        _type_: _description_
+        int: User selected number option on the menu.
     """
 
-    VALID_OPTIONS = [1, 2, 3, 4]
     user_selection = ""
+    VALID_OPTIONS = [1, 2, 3, 4]
+
+    # Loops until user selects a valid number option.
     while (user_selection not in VALID_OPTIONS):
         user_selection = input("Enter a menu option: ")
 
+        # Try to convert string entry into a integer
         try:
             user_selection = int(user_selection)
         except ValueError:
-            print("Please enter a valid menu number option.")
+            print("Please enter a valid menu number option.\n")
 
     return user_selection
 
 
-def menu_select_key():
-    """_summary_
-
-    Returns:
-        _type_: _description_
-    """
+def ask_user_key():
     user_key = ""
     while len(user_key) == 0:
         user_key = input("Enter a key with alphabetic characters: ")
@@ -75,13 +75,84 @@ def menu_select_key():
 
         # Error message when key has no alphabet characters.
         if len(user_key) == 0:
-            print("Invalid key.")
+            print("Invalid key.\n")
 
-    key_preprocess = process_key_list(user_key.upper())
+    return user_key
 
-    key = generate_playfair_key_square(key_preprocess)
+
+def str_all_alpha(str):
+    """
+    Receives input string, returns the input string where all characters which
+    are not part of the alphabet removed.
+
+    Args:
+        str (str): String input which may contain any character(letter, num, punctuation etc.)
+
+    Returns:
+        str: String containing only letters of the alphabet.
+    """
+    return ''.join(ch for ch in str if ch.isalpha())
+
+
+def process_key(user_key):
+    """_summary_
+
+    Args:
+        user_key (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    key_set_list = key_to_set_list(user_key.upper())
+
+    key = square_list_from_key(key_set_list)
     display_table(key)
     return key
+
+
+def key_to_set_list(key):
+    """_summary_
+
+    Args:
+        key (_type_): _description_
+
+    Returns:
+        list: _description_
+    """
+
+    # Alphabet for playfair 5 x 5 square. I=J for his variation.
+    ALPHA = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+    pre_set_key = [*(key.replace("J", "I") + ALPHA)]
+    return list(dict.fromkeys(pre_set_key))
+
+
+def square_list_from_key(key_set_list):
+    """_summary_
+
+    Args:
+        key_set_list (_type_): _description_
+
+    Returns:
+        list: _description_
+    """
+    square_list = []
+
+    for index, char in enumerate(key_set_list):
+        x_coord = index % 5
+        y_coord = index // 5
+
+        # Cell in 5 x 5 grid of playfair square to add into list
+        new_cell = {
+            'x': x_coord,
+            'y': y_coord,
+            'index': y_coord * 5 + x_coord,
+            'letter': char
+        }
+
+        square_list.append(new_cell)
+
+    print(square_list)
+    return square_list
 
 
 def menu_select_encode(key):
@@ -166,53 +237,6 @@ def menu_select_decode(key):
     return result
 
 
-def process_key_list(key=""):
-    """_summary_
-
-    Args:
-        key (str, optional): _description_. Defaults to "".
-
-    Returns:
-        _type_: _description_
-    """
-    ALPHA = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
-    pre_set_key = [*(key + ALPHA)]
-    return list(dict.fromkeys(pre_set_key))
-
-
-def generate_playfair_key_square(alpha_key_list):
-    square_list = []
-
-    for index, char in enumerate(alpha_key_list):
-        x_coord = index % 5
-        y_coord = index // 5
-
-        new_cell = {
-            'x': x_coord,
-            'y': y_coord,
-            'index': y_coord * 5 + x_coord,
-            'letter': char
-        }
-
-        square_list.append(new_cell)
-
-    return square_list
-
-
-def str_all_alpha(str):
-    """
-    Receives input string, returns the input string where all characters which
-    are not part of the alphabet removed. The characters are all capitalized.
-
-    Args:
-        message (str): _description_
-
-    Returns:
-        str: _description_
-    """
-    return ''.join(ch for ch in str if ch.isalpha())
-
-
 def display_table(key):
     table = []
 
@@ -226,13 +250,16 @@ def display_table(key):
             table.append(temp_row)
             temp_row = []
             row_count = 0
-        ...
 
     print(tabulate(table))
-    ...
 
 
 def ask_user_message():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     user_message = ""
     while len(user_message) == 0:
         user_message = input("Enter message to encode/decode: ")
@@ -344,13 +371,14 @@ def decode_in_box(cell_1, cell_2):
 
 
 def index_from_xy(x, y):
-    """_summary_
+    """Returns an index in a 25 length list which represents a 5 x 5 grid.
 
     Args:
-        cell (_type_): _description_
+        x (int): Location on the x axis.
+        y (int): Location on the y axis.
 
     Returns:
-        _type_: _description_
+        int: Index in a 25 length list.
     """
     return y * 5 + x
 
